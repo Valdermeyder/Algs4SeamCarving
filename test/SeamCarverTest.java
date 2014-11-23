@@ -48,6 +48,25 @@ public class SeamCarverTest {
     }
 
     @Test
+    public void test3to7PictureVerticalSeam() {
+        Picture picture = new Picture("3x7.png");
+        SeamCarver seamCarver = new SeamCarver(picture);
+        int[] verticalSeam = seamCarver.findVerticalSeam();
+        assertArrayEquals("Vertical seam is wrong", new int[]{0, 1, 1, 1, 1, 1, 0}, verticalSeam);
+        seamCarver.removeVerticalSeam(verticalSeam);
+        Picture afterSeamPicture = seamCarver.picture();
+        assertEquals("width is not changed", 2, afterSeamPicture.width());
+        assertEquals("height is changed", 7, afterSeamPicture.height());
+
+        verticalSeam = seamCarver.findVerticalSeam();
+        assertArrayEquals("Vertical seam is wrong", new int[]{0, 0, 0, 0, 0, 0, 0}, verticalSeam);
+        seamCarver.removeVerticalSeam(verticalSeam);
+        afterSeamPicture = seamCarver.picture();
+        assertEquals("width is not changed", 1, afterSeamPicture.width());
+        assertEquals("height is changed", 7, afterSeamPicture.height());
+    }
+
+    @Test
     public void test3By4Picture() {
         Picture picture = new Picture(3, 4);
         picture.set(0, 0, new Color(255, 101, 51));
