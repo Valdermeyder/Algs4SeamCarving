@@ -21,24 +21,30 @@ public class SeamCarverTest {
     public void test6to5PictureVerticalSeam() {
         Picture picture = new Picture("6x5.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        final int[] verticalSeam = seamCarver.findVerticalSeam();
+        int[] verticalSeam = seamCarver.findVerticalSeam();
         assertArrayEquals("Vertical seam is wrong", new int[]{2, 3, 3, 3, 2}, verticalSeam);
         seamCarver.removeVerticalSeam(verticalSeam);
         Picture afterSeamPicture = seamCarver.picture();
         assertEquals("width is not changed", 5, afterSeamPicture.width());
         assertEquals("height is changed", 5, afterSeamPicture.height());
+
+        verticalSeam = seamCarver.findVerticalSeam();
+        assertArrayEquals("Vertical seam is wrong", new int[]{0, 1, 2, 2, 1}, verticalSeam);
     }
 
     @Test
     public void test6to5PictureHorizontalSeam() {
         Picture picture = new Picture("6x5.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        final int[] horizontalSeam = seamCarver.findHorizontalSeam();
+        int[] horizontalSeam = seamCarver.findHorizontalSeam();
         assertArrayEquals("Horizontal seam is wrong", new int[]{2, 3, 3, 3, 2, 1}, horizontalSeam);
         seamCarver.removeHorizontalSeam(horizontalSeam);
         Picture afterSeamPicture = seamCarver.picture();
         assertEquals("width is changed", 6, afterSeamPicture.width());
         assertEquals("height is not changed", 4, afterSeamPicture.height());
+
+        horizontalSeam = seamCarver.findHorizontalSeam();
+        assertArrayEquals("Horizontal seam is wrong", new int[]{0, 1, 2, 2, 1, 0}, horizontalSeam);
     }
 
     @Test

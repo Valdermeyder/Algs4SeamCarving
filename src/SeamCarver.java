@@ -9,13 +9,16 @@ public class SeamCarver {
 
     public SeamCarver(Picture picture) {
         this.picture = new Picture(picture);
+        createVerticalAndHorizontalGraphs();
+    }               // create a seam carver object based on the given picture
 
+    private void createVerticalAndHorizontalGraphs() {
         final int height = picture.height();
         final int width = picture.width();
         final int graphSize = height * width + 2;
         createVerticalPictureGraph(height, width, graphSize);
         createHorizontalPictureGraph(height, width, graphSize);
-    }               // create a seam carver object based on the given picture
+    }
 
     private void createVerticalPictureGraph(int height, int width, int graphSize) {
         verticalPictureGraph = new EdgeWeightedDigraph(graphSize);
@@ -170,6 +173,7 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        createVerticalAndHorizontalGraphs();
     }  // remove horizontal seam from current picture
 
     public void removeVerticalSeam(int[] seam) {
@@ -196,5 +200,6 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        createVerticalAndHorizontalGraphs();
     }    // remove vertical seam from current picture
 }
