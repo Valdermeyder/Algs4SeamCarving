@@ -153,6 +153,23 @@ public class SeamCarver {
         if (seam.length > width() || seam.length <= 1) {
             throw new IllegalArgumentException("seem = " + seam.length);
         }
+        Picture newPicture = new Picture(width(), height() - 1);
+        boolean seamReached;
+        for (int x = 0; x < width(); x++) {
+            seamReached = false;
+            for (int y = 0; y < height(); y++) {
+                if (seam[x] != y) {
+                    if (seamReached) {
+                        newPicture.set(x, y - 1, picture.get(x, y));
+                    } else {
+                        newPicture.set(x, y, picture.get(x, y));
+                    }
+                } else {
+                    seamReached = true;
+                }
+            }
+        }
+        picture = newPicture;
     }  // remove horizontal seam from current picture
 
     public void removeVerticalSeam(int[] seam) {
@@ -162,5 +179,22 @@ public class SeamCarver {
         if (seam.length > height() || seam.length <= 1) {
             throw new IllegalArgumentException("seem = " + seam.length);
         }
+        Picture newPicture = new Picture(width() - 1, height());
+        boolean seamReached;
+        for (int y = 0; y < height(); y++) {
+            seamReached = false;
+            for (int x = 0; x < width(); x++) {
+                if (seam[y] != x) {
+                    if (seamReached) {
+                        newPicture.set(x - 1, y, picture.get(x, y));
+                    } else {
+                        newPicture.set(x, y, picture.get(x, y));
+                    }
+                } else {
+                    seamReached = true;
+                }
+            }
+        }
+        picture = newPicture;
     }    // remove vertical seam from current picture
 }

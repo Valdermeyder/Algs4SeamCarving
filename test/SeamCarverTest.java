@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SeamCarverTest {
     @Test
-    public void test6to5Picture() {
+    public void test6to5PictureEnergy() {
         Picture picture = new Picture("6x5.png");
         SeamCarver seamCarver = new SeamCarver(picture);
         assertEquals("Border pixel should be 195075", 195075, seamCarver.energy(0, 0), 0);
@@ -15,8 +15,30 @@ public class SeamCarverTest {
         assertEquals("Border pixel should be 195075", 195075, seamCarver.energy(seamCarver.width() - 1, 0), 0);
         assertEquals("Border pixel should be 195075", 195075, seamCarver.energy(1, seamCarver.height() - 1), 0);
         assertEquals("2 2 pixel should be 61346", 61346, seamCarver.energy(2, 2), 0);
-        assertArrayEquals("Vertical seam is wrong", new int[]{2, 3, 3, 3, 2}, seamCarver.findVerticalSeam());
-        assertArrayEquals("Horizontal seam is wrong", new int[]{2, 3, 3, 3, 2, 1}, seamCarver.findHorizontalSeam());
+    }
+
+    @Test
+    public void test6to5PictureVerticalSeam() {
+        Picture picture = new Picture("6x5.png");
+        SeamCarver seamCarver = new SeamCarver(picture);
+        final int[] verticalSeam = seamCarver.findVerticalSeam();
+        assertArrayEquals("Vertical seam is wrong", new int[]{2, 3, 3, 3, 2}, verticalSeam);
+        seamCarver.removeVerticalSeam(verticalSeam);
+        Picture afterSeamPicture = seamCarver.picture();
+        assertEquals("width is not changed", 5, afterSeamPicture.width());
+        assertEquals("height is changed", 5, afterSeamPicture.height());
+    }
+
+    @Test
+    public void test6to5PictureHorizontalSeam() {
+        Picture picture = new Picture("6x5.png");
+        SeamCarver seamCarver = new SeamCarver(picture);
+        final int[] horizontalSeam = seamCarver.findHorizontalSeam();
+        assertArrayEquals("Horizontal seam is wrong", new int[]{2, 3, 3, 3, 2, 1}, horizontalSeam);
+        seamCarver.removeHorizontalSeam(horizontalSeam);
+        Picture afterSeamPicture = seamCarver.picture();
+        assertEquals("width is changed", 6, afterSeamPicture.width());
+        assertEquals("height is not changed", 4, afterSeamPicture.height());
     }
 
     @Test
