@@ -5,37 +5,75 @@ public class SeamCarver {
     private static final int BORDER_ENERGY = 195075;
     private Picture picture;
     private EdgeWeightedDigraph verticalPictureGraph;
+    private EdgeWeightedDigraph horizontalPictureGraph;
 
     public SeamCarver(Picture picture) {
         this.picture = new Picture(picture);
+
         final int height = picture.height();
         final int width = picture.width();
         final int graphSize = height * width + 2;
+        createVerticalPictureGraph(height, width, graphSize);
+        createHorizontalPictureGraph(height, width, graphSize);
+    }               // create a seam carver object based on the given picture
+
+    private void createVerticalPictureGraph(int height, int width, int graphSize) {
         verticalPictureGraph = new EdgeWeightedDigraph(graphSize);
         final int lastXIndexInRow = width - 1;
         final int firstVIndexInLastRow = graphSize - width;
+        final int lastYIndex = height - 1;
         for (int x = 0; x < lastXIndexInRow; x++) {
             verticalPictureGraph.addEdge(new DirectedEdge(0, x + 1, energy(x, 0)));
-            verticalPictureGraph.addEdge(new DirectedEdge(firstVIndexInLastRow + x, graphSize - 1, energy(x, height - 1)));
+            verticalPictureGraph.addEdge(new DirectedEdge(firstVIndexInLastRow + x, graphSize - 1, energy(x, lastYIndex)));
         }
         for (int y = 0; y < height - 1; y++) {
             final int firstVinRow = y * width + 1;
             final int firstWinRow = firstVinRow + width;
-            verticalPictureGraph.addEdge(new DirectedEdge(firstVinRow, firstWinRow, energy(0, y + 1)));
-            verticalPictureGraph.addEdge(new DirectedEdge(firstVinRow, firstWinRow + 1, energy(1, y + 1)));
+            final int currentYIndex = y + 1;
+            verticalPictureGraph.addEdge(new DirectedEdge(firstVinRow, firstWinRow, energy(0, currentYIndex)));
+            verticalPictureGraph.addEdge(new DirectedEdge(firstVinRow, firstWinRow + 1, energy(1, currentYIndex)));
             for (int x = 1; x < lastXIndexInRow; x++) {
                 final int vInRow = firstVinRow + x;
                 final int wInRow = firstWinRow + x;
-                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow - 1, energy(x - 1, y + 1)));
-                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow, energy(x, y + 1)));
-                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow + 1, energy(x + 1, y + 1)));
+                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow - 1, energy(x - 1, currentYIndex)));
+                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow, energy(x, currentYIndex)));
+                verticalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow + 1, energy(x + 1, currentYIndex)));
             }
             final int lastVinRow = firstVinRow + lastXIndexInRow;
             final int lastWinRow = firstWinRow + lastXIndexInRow;
-            verticalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow - 1, energy(lastXIndexInRow - 1, y + 1)));
-            verticalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow, energy(lastXIndexInRow, y + 1)));
+            verticalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow - 1, energy(lastXIndexInRow - 1, currentYIndex)));
+            verticalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow, energy(lastXIndexInRow, currentYIndex)));
         }
-    }               // create a seam carver object based on the given picture
+    }
+
+    private void createHorizontalPictureGraph(int height, int width, int graphSize) {
+        horizontalPictureGraph = new EdgeWeightedDigraph(graphSize);
+        final int lastYIndexInColumn = height - 1;
+        final int firstVIndexInLastColumn = graphSize - height;
+        final int lastXIndex = width - 1;
+        for (int y = 0; y < lastYIndexInColumn; y++) {
+            horizontalPictureGraph.addEdge(new DirectedEdge(0, y + 1, energy(0, y)));
+            horizontalPictureGraph.addEdge(new DirectedEdge(firstVIndexInLastColumn + y, graphSize - 1, energy(lastXIndex, y)));
+        }
+        for (int x = 0; x < width - 1; x++) {
+            final int firstVInColumn = x * height + 1;
+            final int firstWInColumn = firstVInColumn + height;
+            final int currentXIndex = x + 1;
+            horizontalPictureGraph.addEdge(new DirectedEdge(firstVInColumn, firstWInColumn, energy(currentXIndex, 0)));
+            horizontalPictureGraph.addEdge(new DirectedEdge(firstVInColumn, firstWInColumn + 1, energy(currentXIndex, 1)));
+            for (int y = 1; y < lastYIndexInColumn; y++) {
+                final int vInRow = firstVInColumn + y;
+                final int wInRow = firstWInColumn + y;
+                horizontalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow - 1, energy(currentXIndex, y - 1)));
+                horizontalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow, energy(currentXIndex, y)));
+                horizontalPictureGraph.addEdge(new DirectedEdge(vInRow, wInRow + 1, energy(currentXIndex, y + 1)));
+            }
+            final int lastVinRow = firstVInColumn + lastYIndexInColumn;
+            final int lastWinRow = firstWInColumn + lastYIndexInColumn;
+            horizontalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow - 1, energy(currentXIndex, lastYIndexInColumn - 1)));
+            horizontalPictureGraph.addEdge(new DirectedEdge(lastVinRow, lastWinRow, energy(currentXIndex, lastYIndexInColumn)));
+        }
+    }
 
     public Picture picture() {
         return picture;
@@ -70,7 +108,23 @@ public class SeamCarver {
     }              // energy of pixel at column x and row y
 
     public int[] findHorizontalSeam() {
-        return new int[]{0, 1};
+        AcyclicSP acyclicSP = new AcyclicSP(horizontalPictureGraph, 0);
+        if (acyclicSP.hasPathTo(horizontalPictureGraph.V() - 1)) {
+            final Iterable<DirectedEdge> horizontalSeam = acyclicSP.pathTo(horizontalPictureGraph.V() - 1);
+            int[] horizontalSeamArray = new int[width() + 1];
+            int index = 0;
+            for (DirectedEdge directedEdge : horizontalSeam) {
+                horizontalSeamArray[index++] = directedEdge.to();
+            }
+            final int lastIndexInSeamArray = width() - 1;
+            for (int i = 1; i < lastIndexInSeamArray; i++) {
+                horizontalSeamArray[i] = (horizontalSeamArray[i] - 1) % height();
+            }
+            horizontalSeamArray[0] = horizontalSeamArray[1] - 1;
+            horizontalSeamArray[lastIndexInSeamArray] = horizontalSeamArray[lastIndexInSeamArray - 1] - 1;
+            return Arrays.copyOf(horizontalSeamArray, width());
+        }
+        return null;
     }              // sequence of indices for horizontal seam
 
     public int[] findVerticalSeam() {

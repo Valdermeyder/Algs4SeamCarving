@@ -15,7 +15,8 @@ public class SeamCarverTest {
         assertEquals("Border pixel should be 195075", 195075, seamCarver.energy(seamCarver.width() - 1, 0), 0);
         assertEquals("Border pixel should be 195075", 195075, seamCarver.energy(1, seamCarver.height() - 1), 0);
         assertEquals("2 2 pixel should be 61346", 61346, seamCarver.energy(2, 2), 0);
-        assertArrayEquals("Vertical is wrong", new int[]{2, 3, 3, 3, 2}, seamCarver.findVerticalSeam());
+        assertArrayEquals("Vertical seam is wrong", new int[]{2, 3, 3, 3, 2}, seamCarver.findVerticalSeam());
+        assertArrayEquals("Horizontal seam is wrong", new int[]{2, 3, 3, 3, 2, 1}, seamCarver.findHorizontalSeam());
     }
 
     @Test
